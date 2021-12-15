@@ -1,3 +1,5 @@
+
+  
 import os
 import yaml
 from launch import LaunchDescription
@@ -21,7 +23,7 @@ def load_file(package_name, file_path):
 def load_yaml(package_name, file_path):
     package_path = get_package_share_directory(package_name)
     absolute_file_path = os.path.join(package_path, file_path)
-    print(package_name+" located at : "+absolute_file_path)
+
     try:
         with open(absolute_file_path, "r") as file:
             return yaml.safe_load(file)
@@ -34,7 +36,7 @@ def generate_launch_description():
     # planning_context
     robot_description_config = xacro.process_file(
         os.path.join(
-            get_package_share_directory("simple_move_group"),
+            get_package_share_directory("moveit_resources_panda_moveit_config"),
             "config",
             "panda.urdf.xacro",
         )
@@ -42,7 +44,7 @@ def generate_launch_description():
     robot_description = {"robot_description": robot_description_config.toxml()}
 
     robot_description_semantic_config = load_file(
-        "simple_move_group", "config/panda.srdf"
+        "moveit_resources_panda_moveit_config", "config/panda.srdf"
     )
     robot_description_semantic = {
         "robot_description_semantic": robot_description_semantic_config
@@ -68,7 +70,7 @@ def generate_launch_description():
 
     # Trajectory Execution Functionality
     moveit_simple_controllers_yaml = load_yaml(
-        "simple_move_group", "config/panda_controllers.yaml"
+        "moveit_resources_panda_moveit_config", "config/panda_controllers.yaml"
     )
     moveit_controllers = {
         "moveit_simple_controller_manager": moveit_simple_controllers_yaml,
@@ -102,7 +104,6 @@ def generate_launch_description():
             trajectory_execution,
             moveit_controllers,
             planning_scene_monitor_parameters,
-
         ],
     )
 
@@ -139,28 +140,26 @@ def generate_launch_description():
         executable="robot_state_publisher",
         name="robot_state_publisher",
         output="both",
-        parameters=[robot_description,
-],
+        parameters=[robot_description],
     )
 
     # ros2_control using FakeSystem as hardware
     ros2_controllers_path = os.path.join(
-        get_package_share_directory("simple_move_group"),
+        get_package_share_directory("moveit_resources_panda_moveit_config"),
         "config",
         "panda_ros_controllers.yaml",
     )
     ros2_control_node = Node(
         package="controller_manager",
         executable="ros2_control_node",
-        parameters=[robot_description, ros2_controllers_path,
-],
+        parameters=[robot_description, ros2_controllers_path],
         output={
             "stdout": "screen",
             "stderr": "screen",
         },
-        # remappings=[
-        #     ('joint_states', 'joint_states_broadcast'),
-        # ], 
+        remappings=[
+            ('joint_states', 'joint_command'),
+        ], 
     )
 
     # Load controllers
@@ -186,8 +185,6 @@ def generate_launch_description():
             {"warehouse_port": 33829},
             {"warehouse_host": "localhost"},
             {"warehouse_plugin": "warehouse_ros_mongo::MongoDatabaseConnection"},
-                        {"use_sim_time": True}
-
         ],
         output="screen",
     )
