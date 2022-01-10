@@ -20,8 +20,11 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(moveit_ros_planning_interface REQUIRED)
 find_package(gazebo_msgs REQUIRED)
-find_package(backward_ros REQUIRED)
+find_package(backward_ros)
 find_package(simple_interface REQUIRED)
+find_package(add_on_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
+
 
 
 install(DIRECTORY
@@ -36,6 +39,14 @@ ament_target_dependencies(moveit_controller
   moveit_ros_planning_interface
   gazebo_msgs
   simple_interface
+)
+add_executable(reservicer src/reservicer.cpp include/service_handler.hpp)
+ament_target_dependencies(reservicer
+  rclcpp
+  add_on_msgs
+  geometry_msgs
+  gazebo_msgs
+  
 )
 # add_executable(throw_moveit src/throw_moveit.cpp include/moveit.hpp)
 # ament_target_dependencies(throw_moveit
@@ -62,7 +73,7 @@ if(BUILD_TESTING)
 endif()
 
 ## Install
-install(TARGETS moveit_controller  moveit_collision
+install(TARGETS moveit_controller moveit_collision reservicer
   DESTINATION lib/${PROJECT_NAME}
 )
 
