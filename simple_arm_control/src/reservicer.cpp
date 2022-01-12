@@ -49,17 +49,14 @@ std::vector<double> convert_to_vector(std::string str_arr)
 {
     std::vector<double> v;
 
-    std::regex float_regex("\\d+\\.\\d+");
+    std::regex float_regex("(\\-)?\\d+\\.\\d+(e(\\+|\\-)\\d+)?");
     auto numbers_begin = 
         std::sregex_iterator(str_arr.begin(), str_arr.end(), float_regex);
     auto numbers_end = std::sregex_iterator();
  
-    std::cout << "Found "
-              << std::distance(numbers_begin, numbers_end)
-              << " words\n";
     for (std::sregex_iterator i = numbers_begin; i != numbers_end; ++i) {
         std::smatch match = *i;
-        double match_float = std::stof(match.str());
+        double match_float = std::strtod(match.str().c_str(), nullptr);
         v.push_back(match_float);
     }
 
@@ -89,9 +86,9 @@ void get_model_state_handler(std::shared_ptr<gazebo_msgs::srv::GetEntityState::R
             auto quat = geometry_msgs::msg::Quaternion();
             auto position = convert_to_vector(position_response->value);
             auto orientation = convert_to_vector(orientation_response->value);
-            point.x = position[0];
-            point.y = position[1];
-            point.z = position[2];
+            point.x = position[0]/100;
+            point.y = position[1]/100;
+            point.z = position[2]/100; // matching rviz
             pose.position = point;
             quat.w = orientation[0];
             quat.x = orientation[1];
@@ -103,11 +100,17 @@ void get_model_state_handler(std::shared_ptr<gazebo_msgs::srv::GetEntityState::R
             response->state = state;
             response->success = true;
         }
+        else
+        {
+            response->success = false;
+            RCLCPP_ERROR(rclcpp::get_logger("reservicer"), "Failed to request model orientation for %s", request->name.c_str());
+        }
+
     }
     else
     {
         response->success = false;
-        RCLCPP_ERROR(rclcpp::get_logger("reservicer"), "Failed to request model state");
+        RCLCPP_ERROR(rclcpp::get_logger("reservicer"), "Failed to request model position for %s", request->name.c_str());
     }
 }
 

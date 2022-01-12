@@ -148,12 +148,12 @@ int main(int argc, char **argv)
                 obj.operation = obj.ADD;
                 primitive.type = primitive.BOX;
                 primitive.dimensions.resize(3);
-                if (obj.id == "table" && !thrower) // table
+                if (obj.id.find("table")!= std::string::npos && !thrower) // table
                 {
-                    primitive.dimensions[0] = 0.92;
-                    primitive.dimensions[1] = 0.5;
-                    primitive.dimensions[2] = 0.914;
-                    height = primitive.dimensions[1]; // reason is that rviz uses center of mass while webots table uses bottom position
+                    primitive.dimensions[0] = 1.5;  // z in isaac x in rviz
+                    primitive.dimensions[1] = 1.08; // x in isaac y in rviz
+                    primitive.dimensions[2] = 1.32; // y in isaac z in rviz (height)
+                    height = 0;
                 }
                 else // cube
                 {
