@@ -44,7 +44,7 @@ def generate_launch_description():
     robot_description = {"robot_description": robot_description_config.toxml()}
 
     robot_description_semantic_config = load_file(
-        "moveit_resources_panda_moveit_config", "config/panda.srdf"
+        "simple_move_group", "config/panda.srdf"
     )
     robot_description_semantic = {
         "robot_description_semantic": robot_description_semantic_config
@@ -70,7 +70,7 @@ def generate_launch_description():
 
     # Trajectory Execution Functionality
     moveit_simple_controllers_yaml = load_yaml(
-        "moveit_resources_panda_moveit_config", "config/panda_controllers.yaml"
+        "simple_move_group", "config/panda_controllers.yaml"
     )
     moveit_controllers = {
         "moveit_simple_controller_manager": moveit_simple_controllers_yaml,
@@ -145,7 +145,7 @@ def generate_launch_description():
 
     # ros2_control using FakeSystem as hardware
     ros2_controllers_path = os.path.join(
-        get_package_share_directory("moveit_resources_panda_moveit_config"),
+        get_package_share_directory("simple_move_group"),
         "config",
         "panda_ros_controllers.yaml",
     )
@@ -167,7 +167,7 @@ def generate_launch_description():
     for controller in [
         "panda_arm_controller",
         "panda_hand_controller",
-        "joint_state_broadcaster",
+        # "joint_state_broadcaster",
     ]:
         load_controllers += [
             ExecuteProcess(
