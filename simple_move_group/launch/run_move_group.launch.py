@@ -36,8 +36,8 @@ def generate_launch_description():
     # planning_context
     robot_description_config = xacro.process_file(
         os.path.join(
-            get_package_share_directory("moveit_resources_panda_moveit_config"),
-            "config",
+            get_package_share_directory("simple_move_group"),
+            "urdf",
             "panda.urdf.xacro",
         )
     )
@@ -195,8 +195,8 @@ def generate_launch_description():
             static_tf,
             robot_state_publisher,
             run_move_group_node,
-            ros2_control_node,
+            # ros2_control_node,
             mongodb_server_node,
         ]
-        + load_controllers
+        # + load_controllers
     )
