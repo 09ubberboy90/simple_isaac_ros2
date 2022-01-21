@@ -20,11 +20,9 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(moveit_ros_planning_interface REQUIRED)
 find_package(gazebo_msgs REQUIRED)
-find_package(backward_ros)
 find_package(simple_interface REQUIRED)
 find_package(add_on_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
-
 
 
 install(DIRECTORY
@@ -39,6 +37,7 @@ ament_target_dependencies(moveit_controller
   moveit_ros_planning_interface
   gazebo_msgs
   simple_interface
+  geometry_msgs
 )
 add_executable(reservicer src/reservicer.cpp include/service_handler.hpp)
 ament_target_dependencies(reservicer
@@ -63,6 +62,7 @@ ament_target_dependencies(moveit_collision
   moveit_ros_planning_interface
   gazebo_msgs
   simple_interface
+  geometry_msgs
 )
 
 if(BUILD_TESTING)
