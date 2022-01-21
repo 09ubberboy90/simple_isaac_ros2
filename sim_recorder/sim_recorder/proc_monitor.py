@@ -50,15 +50,37 @@ class ProcMonitor(Node):
         self.cpu_dict = defaultdict(list)
         self.ram_dict = defaultdict(list)
         self.allowed = allowed
+        self.existing = []
         self.procs = {}
         self.pids = {}
         self.counter = 0
         self.current_length = 0
+
+        self.existing = self.get_proc()
         self.update_missing()
+        
         self.timer = self.create_timer(0.1, self.animate)
         self.idx = idx
         self.sim_name = sim_name
         self.path = path
+
+
+    def get_proc(self, update=False):
+        pids = []
+        for proc in psutil.process_iter():
+            pid = proc.pid
+            name = proc.name()
+            if not update:
+                if not name in self.allowed:
+                    pids.append(pid)
+            if name=="rviz2":
+                print(f"rviz2 {pid not in self.procs.keys()} {pid not in self.existing}")
+            if update and pid not in self.procs.keys() and pid not in self.existing:
+                self.procs[pid] = proc
+                self.pids[pid] = name
+                proc.cpu_percent()  # discard value
+                proc.cpu_percent()  # discard value
+        return pids
 
     def update_missing(self):
         length = len(self.procs.keys())
@@ -68,17 +90,11 @@ class ProcMonitor(Node):
             else:
                 self.counter = 0
                 self.current_length = length
-
-            for proc in psutil.process_iter():
-                p = proc.name()
-                if proc.pid not in self.procs.keys():
-                    self.procs[proc.pid] = proc
-                    self.pids[proc.pid] = proc.name()
-                    proc.cpu_percent()  # discard value
-                    proc.cpu_percent()  # discard value
+                self.get_proc(True)
 
     def animate(self):
-        self.update_missing()
+        self.get_proc(True)
+        print(self.procs.keys())
         for pid, p in self.procs.items():
             try:
                 with p.oneshot():
@@ -112,9 +128,12 @@ class ProcMonitor(Node):
                 f.write(f"{self.name[pid]},{','.join(str(v) for v in el)}\n")
         sys.exit(0)
 
-def run(path, simulator="webots", idx=0):
+def run(path, simulator="isaac", idx=0):
     rclpy.init(args=None)
-    monitor = ProcMonitor([], idx, simulator, path)
+    allowed = ["ros2", "run_recording"] # Needed since they start before recording starts
+    if simulator == "isaac":
+        allowed.extend(["kit"])
+    monitor = ProcMonitor(allowed, idx, simulator, path)
     signal.signal(signal.SIGINT, lambda sig, frame: monitor.dump_values())
     signal.signal(signal.SIGTERM, lambda sig, frame: monitor.dump_values())
     rclpy.spin(monitor)

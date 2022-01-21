@@ -67,19 +67,25 @@ for el in tmp:
         types["cpu"].append(el)
 
 procs = defaultdict(lambda: defaultdict(list))
-
-for key, el in types.items():
-    for name in el:
+skipped = []
+for key in ["cpu", "ram"]:
+    for name in types[key]:
         existing = []
         with open(name) as f:
             for lines in f.readlines():
                 lines = lines.replace("\n", "")
                 line = lines.split(",")
                 p = line[0]
+                if p in skipped:
+                    continue
                 if "ruby" in p:
                     p = "ignition"
                 val = line[1:]
-                val = [float(x) for x in val if x]
+                val = np.array([float(x) for x in val if x])
+                if np.all(val==0) and key == "cpu": ## Can't skip ram since cpu went first
+                    print(f"Skipping {p}")
+                    skipped.append(p)
+                    continue
                 counter = 0
                 new_p = p
                 while new_p in existing:
@@ -161,7 +167,7 @@ def create_figure(figname, printing=False):
             if tmp > length:
                 length = tmp
         for color, (name, ls) in zip(colors, sorted_dict.items()):
-            arr = np.array([xi+[np.nan]*(length-len(xi)) for xi in ls])
+            arr = np.array([np.concatenate((xi,np.full(length-len(xi), np.nan))) for xi in ls])
             if "_win" in figname and type == "cpu": 
                 arr *= 8 ## acount for windows using full cpu usage vs linux and core
             if total is None:

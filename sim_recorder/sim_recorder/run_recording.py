@@ -46,12 +46,12 @@ except ModuleNotFoundError:
 import _thread
 import threading
 import re
-class Webots():
+class Isaac():
     def __init__(self):
-        self.name = "webots"
+        self.name = "isaac"
         self.timeout = 300 # 6 minute
         self.commands = [
-            "ros2 launch webots_driver stack_cubes.launch.py",
+            "ros2 launch simple_arm stack_cubes.launch.py",
         ]
         self.delays = [] #added the timer delay from launch file + 10 s for robot movement
 
@@ -169,7 +169,7 @@ def main(args=None):
     succ = 0
     fail = 0
 
-    sim = Webots()
+    sim = Isaac()
 
     if len(sys.argv) == 2:
         iteration = int(sys.argv[1])
