@@ -36,7 +36,7 @@ def generate_launch_description():
     # planning_context
     robot_description_config = xacro.process_file(
         os.path.join(
-            get_package_share_directory("simple_move_group"),
+            get_package_share_directory("simple_arm"),
             "urdf",
             "panda.urdf.xacro",
         )
@@ -44,7 +44,7 @@ def generate_launch_description():
     robot_description = {"robot_description": robot_description_config.toxml()}
 
     robot_description_semantic_config = load_file(
-        "simple_move_group", "config/panda.srdf"
+        "simple_arm", "config/panda.srdf"
     )
     robot_description_semantic = {
         "robot_description_semantic": robot_description_semantic_config
@@ -70,7 +70,7 @@ def generate_launch_description():
 
     # Trajectory Execution Functionality
     moveit_simple_controllers_yaml = load_yaml(
-        "simple_move_group", "config/panda_controllers.yaml"
+        "simple_arm", "config/panda_controllers.yaml"
     )
     moveit_controllers = {
         "moveit_simple_controller_manager": moveit_simple_controllers_yaml,
@@ -109,7 +109,7 @@ def generate_launch_description():
 
     # RViz
     rviz_config_file = (
-        get_package_share_directory("simple_move_group") + "/config/move_group.rviz"
+        get_package_share_directory("simple_arm") + "/config/move_group.rviz"
     )
     rviz_node = Node(
         package="rviz2",
