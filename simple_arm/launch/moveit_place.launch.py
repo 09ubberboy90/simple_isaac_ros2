@@ -45,9 +45,7 @@ def generate_launch_description():
                                output='screen',
                                parameters=[robot_description,
                                            robot_description_semantic,
-                                           kinematics_yaml,
-                                           {"action_node_name": "/panda_arm_controller/follow_joint_trajectory"},
-                                           {"use_spawn_obj": True},{"gazebo": False}, {"use_sim_time":False}],
+                                           kinematics_yaml,{"use_sim_time":False}],
                             #   prefix=['gdbserver localhost:3000']
                             )
     

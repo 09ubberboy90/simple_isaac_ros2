@@ -143,40 +143,6 @@ def generate_launch_description():
         parameters=[robot_description],
     )
 
-    # ros2_control using FakeSystem as hardware
-    ros2_controllers_path = os.path.join(
-        get_package_share_directory("simple_move_group"),
-        "config",
-        "panda_ros_controllers.yaml",
-    )
-    ros2_control_node = Node(
-        package="controller_manager",
-        executable="ros2_control_node",
-        parameters=[robot_description, ros2_controllers_path],
-        output={
-            "stdout": "screen",
-            "stderr": "screen",
-        },
-        remappings=[
-            ('joint_states', 'joint_command'),
-        ], 
-    )
-
-    # Load controllers
-    load_controllers = []
-    for controller in [
-        "panda_arm_controller",
-        "panda_hand_controller",
-        # "joint_state_broadcaster",
-    ]:
-        load_controllers += [
-            ExecuteProcess(
-                cmd=["ros2 run controller_manager spawner.py {}".format(controller)],
-                shell=True,
-                output="screen",
-            )
-        ]
-
     # Warehouse mongodb server
     mongodb_server_node = Node(
         package="warehouse_ros_mongo",
@@ -195,8 +161,6 @@ def generate_launch_description():
             static_tf,
             robot_state_publisher,
             run_move_group_node,
-            # ros2_control_node,
             mongodb_server_node,
         ]
-        # + load_controllers
     )

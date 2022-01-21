@@ -1,6 +1,6 @@
 from setuptools import setup
 from glob import glob
-package_name = 'simple_move_group'
+package_name = 'simple_arm'
 
 setup(
     name=package_name,
