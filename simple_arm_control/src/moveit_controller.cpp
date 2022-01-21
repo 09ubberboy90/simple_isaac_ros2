@@ -87,7 +87,7 @@ int main(int argc, char **argv)
     int acc = 0;
     int iter = 2;
     std::set<std::string> processed{banned};
-    processed.emplace("table");
+    processed.emplace("/Spawned/table");
     auto discard = choose_target(simple_moveit->get_planning_scene_interface(), &processed);
 
     RCLCPP_INFO(rclcpp::get_logger("panda_moveit_controller"), "Starting timer");

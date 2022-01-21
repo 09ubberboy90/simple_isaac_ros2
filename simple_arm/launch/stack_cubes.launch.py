@@ -12,12 +12,6 @@ def generate_launch_description():
     pkg_name = "simple_arm"
     pkg_share = get_package_share_directory(pkg_name)
 
-
-    panda = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            os.path.join(pkg_share, 'launch', 'panda.launch.py'),
-        ),)
-
     run_move_group_node = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(pkg_share, 'launch', 'run_move_group.launch.py'),
@@ -33,7 +27,7 @@ def generate_launch_description():
             os.path.join(pkg_share, 'launch', 'moveit_controller.launch.py'),
         ),)
 
-    timer_2 = IncludeLaunchDescription(LaunchDescriptionSource(LaunchDescription([  # hack since you can't have recursive timer
+    timer_1 = IncludeLaunchDescription(LaunchDescriptionSource(LaunchDescription([  # hack since you can't have recursive timer
         moveit_controller,
         TimerAction(
             period=10.,
@@ -42,17 +36,8 @@ def generate_launch_description():
             ])
     ])))
 
-    timer_1 = IncludeLaunchDescription(LaunchDescriptionSource(LaunchDescription([  # hack since you can't have recursive timer
-        run_move_group_node,
-        TimerAction(
-            period=10.,
-            actions=[
-                timer_2
-            ])
-    ])))
-
     return LaunchDescription([
-        panda,
+        run_move_group_node,
         TimerAction(
             period=5.,
             actions=[

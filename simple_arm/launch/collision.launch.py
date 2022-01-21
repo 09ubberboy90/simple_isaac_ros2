@@ -61,6 +61,6 @@ def generate_launch_description():
                             parameters=[robot_description,
                                         robot_description_semantic,
                                         kinematics_yaml,
-                                        {"use_spawn_obj": True}])
+                                        ])
 
     return LaunchDescription([reservicer, moveit_collision])
