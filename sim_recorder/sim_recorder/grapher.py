@@ -42,6 +42,7 @@ from matplotlib import pyplot as plt
 from numpy import linspace
 from numpy.lib.scimath import sqrt
 from scipy import signal
+from matplotlib.ticker import ScalarFormatter
 
 SMOOTH_INDEX = 21
 POLY_INDEX = 3
@@ -78,7 +79,7 @@ for key in ["cpu", "ram"]:
                 p = line[0]
                 if "ruby" in p:
                     p = "ignition"
-                val = line[1:]
+                val = line[2:] # skip first reading that is often eronous
                 val = np.array([float(x) for x in val if x])
                 counter = 0
                 new_p = p
@@ -185,8 +186,12 @@ def create_figure(figname, printing=False):
             y = [meanarr]
             if printing:
                 y = signal.savgol_filter(meanarr,
-                                     SMOOTH_INDEX,  # window size used for filtering
+                                     SMOOTH_INDEX,  # window size used for filtering    
                                      POLY_INDEX),  # order of fitted polynomial
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", category=RuntimeWarning)
+                y[0][y[0] < 0] = 0 # clamp to zero
+            
             axs.plot(x, y[0], label=name, color=color)
 
             lower = meanarr-standard_dev
@@ -214,6 +219,9 @@ def create_figure(figname, printing=False):
             if type == "ram":
                 axs.set_ylabel("RAM usage (MB)")
                 axs.set_title("RAM usage against time")
+                axs.set_yscale('log')
+                axs.yaxis.set_major_formatter(ScalarFormatter())
+
             else:
                 axs.set_title("CPU usage against time")
                 axs.set_ylabel("CPU Usage (% of one core)")

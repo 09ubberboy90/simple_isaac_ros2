@@ -148,18 +148,18 @@ def run(sim, idx, path):
                     start_exec_time = time.time() - start_time
                 if "Task executed successfully" in text:
                     timing = [int(s) for s in re.findall(r'\b\d+\b', text)][-1]
-                    log(out, f"Completed for {idx} in {timing} ms. Task started {start_exec_time*1000:.0f} ms after start")
-                    signal.alarm(0)
+                    log(out, f"Completed for {idx} in {timing} ms. Total execution time {time.time()-start_time} ms. Task started {start_exec_time*1000:.0f} ms after start")
+                    signal.alarm(0) 
                     kill_proc_tree(pids, procs, interrupt_event)
                     return 1, 0
                 if "Task failed" in text: 
                     numbers = [int(s) for s in re.findall(r'\b\d+\b', text)]
-                    log(out, f"Failed for {idx} in {numbers[-1]} ms with {numbers[-2]} cube stacked. Task started {start_exec_time*1000:.0f} ms after start")
+                    log(out, f"Failed for {idx} in {numbers[-1]} ms with {numbers[-2]} cube stacked.Total execution time {time.time()-start_time} ms. Task started {start_exec_time*1000:.0f} ms after start")
                     signal.alarm(0)
                     kill_proc_tree(pids, procs, interrupt_event)
                     return 0, 1
         except:
-            log(out,f"Timeout for {idx}")
+            log(out,f"Timeout for {idx} after {time.time()-start_time}")
             f.write("Timeout")
             kill_proc_tree(pids, procs, interrupt_event)
             return 0, 0
