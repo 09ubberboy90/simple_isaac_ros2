@@ -53,13 +53,15 @@ def generate_launch_description():
         "moveit_resources_panda_moveit_config", "config/kinematics.yaml"
     )
     # MoveGroupInterface demo executable
-    moveit_controller = Node(name='moveit_controller_launch',
+    moveit_controller = Node(name='moveit_controller',
                                package='simple_arm_control',
                                executable='moveit_controller',
                                output='screen',
                                parameters=[robot_description,
                                            robot_description_semantic,
-                                           kinematics_yaml,{"use_sim_time":False}],
+                                           kinematics_yaml,
+                                           {"height": 2, "columns" : 3},
+                                           ],
                             #   prefix=['gdbserver localhost:3000']
                             )
     
