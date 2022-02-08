@@ -20,8 +20,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            "webots_spawner = sim_spawner.webots_spawner:main",
-            "webots_throw_spawner = sim_spawner.webots_throw_spawner:main",
+            "spawner = sim_spawner.spawner:main",
+            "throw_spawner = sim_spawner.throw_spawner:main",
         ],
     },
 )
