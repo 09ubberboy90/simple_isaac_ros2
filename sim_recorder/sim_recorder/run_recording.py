@@ -35,6 +35,7 @@ import subprocess
 import sys
 import time
 from multiprocessing import Event, Pipe, Process, Queue
+import argparse
 
 import psutil
 
@@ -49,11 +50,11 @@ import _thread
 import threading
 import re
 class Isaac():
-    def __init__(self):
+    def __init__(self, gui=False):
         self.name = "isaac"
-        self.timeout = 600 # 6 minute
+        self.timeout = 900 # 15 minute
         self.commands = [
-            "ros2 launch simple_arm stack_cubes.launch.py",
+            f"ros2 launch simple_arm stack_cubes.launch.py gui:={str(gui).lower()}"
         ]
         self.delays = [5] #added the timer delay from launch file + 10 s for robot movement
 
@@ -72,6 +73,7 @@ def kill_proc_tree(pids, procs, interrupt_event, including_parent=False):
     time.sleep(2)  # Wait for everything ot close to prevent broken_pipe
     for proc in procs[:2]:
         os.kill(proc.pid,signal.SIGINT)
+        proc.terminate()
     for proc in procs[2:]:
         proc.kill()
     time.sleep(2)  # Wait for everything ot close to prevent broken_pipe
@@ -172,33 +174,51 @@ def run(sim, idx, path):
 
 def main(args=None):
     fail = 0
-    start_idx = 1
-    sim = Isaac()
+    parser = argparse.ArgumentParser(description='Sim recorder parameters')
+    parser.add_argument("-i", '--iterations', type=int, default=1,
+                        help='Number of iterations of the simulation')
+    parser.add_argument("-s", '--start-index', type=int, default=1,
+                        help='Allow to start the simulation at a different index then 1')
+    parser.add_argument('--headless', action='store_true',
+                        help='Whetever to render to a GUI or not')
 
-    if len(sys.argv) == 2:
-        iteration = int(sys.argv[1])
-    elif len(sys.argv) == 3:
-        iteration = int(sys.argv[1])
-        start_idx = int(sys.argv[2])
-    else:
-        iteration = 1
+    args = parser.parse_args()
+    gui = True if not args.headless else False
+    sim = Isaac(gui)
+
     dir_path = os.path.dirname(os.path.realpath(__file__))
+    path = os.path.join(dir_path, "..")
+    try:
+        os.mkdir(path+"/data")
+    except:
+        pass
     path = os.path.join(dir_path, "..", "data")
     try:
         os.mkdir(path+f"/{sim.name}")
-        os.mkdir(path+f"/{sim.name}/log")
-        os.mkdir(path+f"/{sim.name}/ram")
-        os.mkdir(path+f"/{sim.name}/cpu")
-        os.mkdir(path+f"/{sim.name}/clock")
     except Exception as e:
-        print(e)
-        print("Folder exist. Overwriting...")
+        pass
+    try:
+        os.mkdir(path+f"/{sim.name}/log")
+    except Exception as e:
+        pass
+    try:
+        os.mkdir(path+f"/{sim.name}/ram")
+    except Exception as e:
+        pass
+    try:
+        os.mkdir(path+f"/{sim.name}/cpu")
+    except Exception as e:
+        pass
+    try:
+        os.mkdir(path+f"/{sim.name}/clock")
+    except:
+        pass
     if os.path.exists(path+f"/{sim.name}/run.txt"):
         os.remove(path+f"/{sim.name}/run.txt")
 
-    for idx in range(start_idx, iteration+1):
+    for idx in range(args.start_index, args.iterations+1):
         fail += run(sim, idx, path)
-    print(f"Completed {iteration-fail}; Timeout {fail}")
+    print(f"Completed {args.iterations-fail}; Timeout {fail}")
 
 
 if __name__ == "__main__":
