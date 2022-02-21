@@ -143,17 +143,28 @@ int main(int argc, char **argv)
 
     for (const auto& imap : collision_objects)
     {
-        if (!check_object_pose(&collision_objects[imap.first].primitive_poses[0], &poses[imap.first].primitive_poses[0]))
+        if (poses.find(imap.first) == poses.end())
+        {
+            RCLCPP_INFO(rclcpp::get_logger("panda_moveit_controller"), "Could not find %s", imap.first.c_str());
+            continue;
+        }
+
+        RCLCPP_INFO(rclcpp::get_logger("panda_moveit_controller"),"%s", imap.first.c_str());
+        if (!check_object_pose(&collision_objects[imap.first].primitive_poses[0], &poses[imap.first].primitive_poses[0]) && imap.first.compare(obj_name) != 0)
         {
             moved += 1;
         }
     }
-    auto new_pose = simple_moveit->get_planning_scene_interface()->getObjects({obj_name})[obj_name].primitive_poses[0];
 
-    auto target_moved = check_object_pose(&new_pose, &pose);
-    if (target_moved)
+    bool target_moved;
+    try
     {
-        moved-= 1;
+        auto new_pose = simple_moveit->get_planning_scene_interface()->getObjects({obj_name})[obj_name].primitive_poses[0];
+        target_moved = check_object_pose(&new_pose, &pose);
+    }
+    catch(const std::exception& e)
+    {
+        target_moved = false;
     }
     
     RCLCPP_INFO(rclcpp::get_logger("panda_moveit_controller"), 

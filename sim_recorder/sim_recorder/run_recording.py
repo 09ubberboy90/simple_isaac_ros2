@@ -50,11 +50,11 @@ import _thread
 import threading
 import re
 class Isaac():
-    def __init__(self, gui=False):
-        self.name = "isaac"
-        self.timeout = 900 # 15 minute
+    def __init__(self, gui=False, throw = False):
+        self.name = "isaac" +("_throw" if throw else "") + ("_gui" if gui else "")
+        self.timeout = 900 if not throw else 600
         self.commands = [
-            f"ros2 launch simple_arm stack_cubes.launch.py gui:={str(gui).lower()}"
+            f"ros2 launch simple_arm {'throw' if throw else 'stack'}_cubes.launch.py gui:={str(gui).lower()}"
         ]
         self.delays = [5] #added the timer delay from launch file + 10 s for robot movement
 
@@ -160,7 +160,7 @@ def run(sim, idx, path):
                 if "Task finished executing in" in text: 
                     end_time = [int(s) for s in re.findall(r'\b\d+\b', text)][-1]
                     log(out, f"Completed for {idx}: Total execution time {(time.time()-start_time)*1000:.0f} ms. Task started {start_exec_time*1000:.0f} ms after start and took {end_time} ms")
-                if "cubes placed correctly" in text:
+                if "cubes placed correctly" in text or "cubes moved out" in text:
                     log(out, text.split(":")[-1])
                     signal.alarm(0) 
                     kill_proc_tree(pids, procs, interrupt_event)
@@ -181,41 +181,43 @@ def main(args=None):
                         help='Allow to start the simulation at a different index then 1')
     parser.add_argument('--headless', action='store_true',
                         help='Whetever to render to a GUI or not')
+    parser.add_argument('-t', '--throw', action='store_true',
+                        help='If enabled run the throw simulation')
 
     args = parser.parse_args()
     gui = True if not args.headless else False
-    sim = Isaac(gui)
+    sim = Isaac(gui, args.throw)
 
     dir_path = os.path.dirname(os.path.realpath(__file__))
     path = os.path.join(dir_path, "..")
     try:
         os.mkdir(path+"/data")
-    except:
-        pass
+    except Exception as e:
+        print(f"Error {e}")
     path = os.path.join(dir_path, "..", "data")
     try:
         os.mkdir(path+f"/{sim.name}")
     except Exception as e:
-        pass
+        print(f"Error {e}")
     try:
         os.mkdir(path+f"/{sim.name}/log")
     except Exception as e:
-        pass
+        print(f"Error {e}")
     try:
         os.mkdir(path+f"/{sim.name}/ram")
     except Exception as e:
-        pass
+        print(f"Error {e}")
     try:
         os.mkdir(path+f"/{sim.name}/cpu")
     except Exception as e:
-        pass
+        print(f"Error {e}")
     try:
         os.mkdir(path+f"/{sim.name}/clock")
-    except:
-        pass
-    if os.path.exists(path+f"/{sim.name}/run.txt"):
+    except Exception as e:
+        print(f"Error {e}")
+    if os.path.exists(path+f"/{sim.name}/run.txt") and args.start_index == 1:
         os.remove(path+f"/{sim.name}/run.txt")
-
+    
     for idx in range(args.start_index, args.iterations+1):
         fail += run(sim, idx, path)
     print(f"Completed {args.iterations-fail}; Timeout {fail}")
