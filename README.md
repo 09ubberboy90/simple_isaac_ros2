@@ -31,7 +31,7 @@ These are the primary dependencies required to use this project.
 
 - [simple_isaac_ros2_extension](https://github.com/09ubberboy90/simple_isaac_ros2_extension)
 - [ros2_bridge](https://github.com/Toni-SM/omni.add_on.ros2_bridge)
-  - Missing controller PR  
+  - Missing controller PR/ Need to install and source the add_on msg from the repository
 - [add_on](https://github.com/Toni-SM/omni.usd.schema.add_on)
 - [ros_bridge_ui](https://github.com/Toni-SM/omni.add_on.ros_bridge_ui)
 
