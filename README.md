@@ -1,5 +1,5 @@
 # simple_isaac_ros2
-This repository contains 2 tasks for Webots  
+This repository contains 2 tasks for Isaac Sim
 
 ## Stacking Task
 ![Stacking Cube task](https://github.com/09ubberboy90/simple_isaac_ros2/blob/2231dbc3468ed3b08986e21456b8aa74be54c954/imgs/Isaac_place.png "Stacking Cube task")
